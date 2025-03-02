@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Conversion and Booth's Algorithm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #007BFF;
+            padding: 20px;
+        }
+        .container {
+            background: silver;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            margin: auto;
+        }
+        input, button, select {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Number Conversion and Booth's Algorithm</h2>
+        <label for="operation"><b>Select Operation:</b></label>
+        <select id="operation" onchange="toggleInputs()">
+            <option value="booth">Booth's Algorithm</option>
+            <option value="ieee_single">IEEE 754 Single Precision</option>
+            <option value="ieee_double">IEEE 754 Double Precision</option>
+        </select>
+        <br>
+        <div id="decimal-inputs">
+            <label for="num1"><b>Enter First Decimal Number:</b> </label>
+            <input type="number" id="num1" placeholder="Enter a number">
+            <br>
+            <label for="num2"><b>Enter Second Decimal Number:</b> </label>
+            <input type="number" id="num2" placeholder="Enter a number">
+        </div>
+        <div id="ieee-input" style="display:none;">
+            <label for="decimalNum">Enter Decimal Number: </label>
+            <input type="number" id="decimalNum" placeholder="Enter decimal number">
+        </div>
+        <br>
+        <button onclick="performOperation()">Calculate</button>
+        <div id="output"></div>
+    </div>
+    
+    <script>
+        function boothAlgorithm(multiplicand, multiplier) {
+            let m = parseInt(multiplicand);
+            let q = parseInt(multiplier);
+            let result = m * q;
+            let binaryResult = (result >>> 0).toString(2);
+            return `Booth's Multiplication:<br>Binary Result: ${binaryResult}<br>Decimal Result: ${result}`;
+        }
+
+        function decimalToIEEE754(number, precision) {
+            let buffer = new ArrayBuffer(precision === "single" ? 4 : 8);
+            let view = new DataView(buffer);
+            if (precision === "single") {
+                view.setFloat32(0, number, false);
+            } else {
+                view.setFloat64(0, number, false);
+            }
+            let binary = Array.from(new Uint8Array(buffer)).map(b => b.toString(2).padStart(8, '0')).join(' ');
+            return `IEEE 754 ${precision === "single" ? "Single" : "Double"} Precision:<br>Binary: ${binary}<br>Decimal: ${number}`;
+        }
+
+        function performOperation() {
+            let operation = document.getElementById("operation").value;
+            let output = "";
+
+            if (operation === "booth") {
+                let num1 = document.getElementById("num1").value;
+                let num2 = document.getElementById("num2").value;
+                if (num1 === "" || num2 === "") {
+                    alert("Please enter both numbers!");
+                    return;
+                }
+                output = boothAlgorithm(num1, num2);
+            } else {
+                let decimalNum = document.getElementById("decimalNum").value;
+                if (decimalNum === "") {
+                    alert("Please enter a decimal number!");
+                    return;
+                }
+                let decimalValue = parseFloat(decimalNum);
+                if (operation === "ieee_single") {
+                    output = decimalToIEEE754(decimalValue, "single");
+                } else {
+                    output = decimalToIEEE754(decimalValue, "double");
+                }
+            }
+            document.getElementById("output").innerHTML = output;
+        }
+
+        function toggleInputs() {
+            let operation = document.getElementById("operation").value;
+            if (operation === "booth") {
+                document.getElementById("decimal-inputs").style.display = "block";
+                document.getElementById("ieee-input").style.display = "none";
+            } else {
+                document.getElementById("decimal-inputs").style.display = "none";
+                document.getElementById("ieee-input").style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
